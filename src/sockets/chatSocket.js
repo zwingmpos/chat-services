@@ -120,7 +120,7 @@ const setupChatSocket = (io) => {
                     {userId},
                     {isOnline: false, socketId: null, updatedAt: new Date()}
                 );
-                console.log(`✅ User ${userId} marked offline`);
+                console.log(`🔴 User ${userId} marked offline`);
             } catch (error) {
                 console.error("❌ Error updating user offline status:", error);
             }
