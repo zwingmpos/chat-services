@@ -14,11 +14,13 @@ const setupChatSocket = (io) => {
 
         try {
             // Store user's online status in MongoDB
-            const result = await UserOnline.findOneAndUpdate(
+            await UserOnline.findOneAndUpdate(
                 {userId},
                 {socketId: socket.id, isOnline: true, updatedAt: new Date()},
                 {upsert: true, new: true}
             );
+
+            io.emit("userOnlineStatus", {userId, isOnline: true});
         } catch (error) {
             console.error("❌ Error updating user online status:", error);
         }
@@ -120,6 +122,9 @@ const setupChatSocket = (io) => {
                     {userId},
                     {isOnline: false, socketId: null, updatedAt: new Date()}
                 );
+
+                io.emit("userOnlineStatus", {userId, isOnline: false});
+
                 console.log(`🔴 User ${userId} marked offline`);
             } catch (error) {
                 console.error("❌ Error updating user offline status:", error);
