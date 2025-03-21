@@ -13,14 +13,20 @@ const setupChatSocket = (io) => {
         console.log(`🔵 User connected: ${userId} - `, socket.id);
 
         try {
-            // Store user's online status in MongoDB
-            await UserOnline.findOneAndUpdate(
-                {userId},
-                {socketId: socket.id, isOnline: true, updatedAt: new Date()},
-                {upsert: true, new: true}
-            );
+            // Check if the user is already marked online to avoid duplicate emissions
+            const existingUser = await UserOnline.findOne({userId});
 
-            socket.broadcast.emit("userOnlineStatus", {userId, isOnline: true});
+            if (!existingUser || !existingUser.isOnline) {
+                // Store user's online status in MongoDB
+                await UserOnline.findOneAndUpdate(
+                    {userId},
+                    {socketId: socket.id, isOnline: true, updatedAt: new Date()},
+                    {upsert: true, new: true}
+                );
+
+                // Emit only if status changed
+                socket.broadcast.emit("userOnlineStatus", {userId, isOnline: true});
+            }
         } catch (error) {
             console.error("❌ Error updating user online status:", error);
         }
