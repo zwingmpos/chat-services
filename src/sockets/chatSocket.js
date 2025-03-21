@@ -20,7 +20,7 @@ const setupChatSocket = (io) => {
                 {upsert: true, new: true}
             );
 
-            io.emit("userOnlineStatus", {userId, isOnline: true});
+            socket.broadcast.emit("userOnlineStatus", {userId, isOnline: true});
         } catch (error) {
             console.error("❌ Error updating user online status:", error);
         }
@@ -123,7 +123,7 @@ const setupChatSocket = (io) => {
                     {isOnline: false, socketId: null, updatedAt: new Date()}
                 );
 
-                io.emit("userOnlineStatus", {userId, isOnline: false});
+                socket.broadcast.emit("userOnlineStatus", {userId, isOnline: true});
 
                 console.log(`🔴 User ${userId} marked offline`);
             } catch (error) {
