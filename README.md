@@ -16,4 +16,7 @@
 
 [//]: # (- Redis for Caching)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> development

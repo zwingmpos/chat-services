@@ -44,6 +44,7 @@ const getChatHistory = async (req, res) => {
                 formattedChats.push({
                     type: msg.senderId === senderId ? "sender" : "receiver",
                     message: msg.text,
+                    messageType: "text",
                     messageId: msg._id,
                     time: formatTime(msg.timestamp),
                 });
