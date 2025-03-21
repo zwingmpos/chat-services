@@ -51,7 +51,12 @@ const getChatHistory = async (req, res) => {
             });
         });
 
-        return res.status(200).json({chatRoomId, createdAt: chatRoom.createdAt, chats: formattedChats});
+        return res.status(200).json({
+            status: 'success',
+            chatRoomId,
+            createdAt: chatRoom.createdAt,
+            chats: formattedChats
+        });
     } catch (error) {
         console.error('❌ Error fetching chat history:', error);
         return res.status(500).json({status: 'error', message: 'Server Error'});
