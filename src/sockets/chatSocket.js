@@ -129,7 +129,7 @@ const setupChatSocket = (io) => {
                     {isOnline: false, socketId: null, updatedAt: new Date()}
                 );
 
-                socket.broadcast.emit("userOnlineStatus", {userId, isOnline: true});
+                socket.broadcast.emit("userOnlineStatus", {userId, isOnline: false});
 
                 console.log(`🔴 User ${userId} marked offline`);
             } catch (error) {
