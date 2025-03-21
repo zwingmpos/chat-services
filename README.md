@@ -7,7 +7,11 @@
 4. Run server: `node server.js`
 
 ## Features
-- JWT Authentication
-- WebSocket Real-Time Chat
-- MongoDB for Message Storage
-- Redis for Caching
+
+[//]: # (- JWT Authentication)
+
+[//]: # (- WebSocket Real-Time Chat)
+
+[//]: # (- MongoDB for Message Storage)
+
+[//]: # (- Redis for Caching)
