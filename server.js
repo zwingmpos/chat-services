@@ -3,9 +3,9 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const dotenv = require('dotenv');
-const connectDB = require('././src/config/db');
+const connectDB = require('./src/config/database');
 const apiRoutes = require('./src/routes/apiRoutes');
-const {setupChatSocket} = require('././src/sockets/chatSocket');
+const {setupChatSocket} = require('././src/sockets/ChatSocketManager');
 
 dotenv.config();
 
