@@ -62,6 +62,7 @@ const getChatHistory = async (req, res) => {
                     messageId: msg._id,
                     attachment: msg.attachment || null,
                     time: formatTime(msg.timestamp),
+                    timestamp: msg.timestamp,
                 });
             });
         });

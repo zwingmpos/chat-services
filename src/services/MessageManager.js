@@ -40,6 +40,7 @@ class MessageManager {
 
             await MessageManager.notifyReceiver(receiverId, 'userStoppedTyping', {senderId});
             await MessageManager.notifyReceiver(receiverId, 'receiveMessage', chatMessage);
+            await MessageManager.notifyReceiver(senderId, 'messageDelivered', chatMessage);
 
             console.log(`📩 Message Sent from ${senderId} to ${receiverId}:`, message);
         } catch (error) {
@@ -47,14 +48,14 @@ class MessageManager {
         }
     }
 
-    static async notifyReceiver(receiverId, event, payload) {
+    static async notifyReceiver(userId, event, payload) {
         try {
-            const receiver = await UserOnlineManager.getUserOnline(receiverId);
-            if (receiver?.socketId) {
-                io.to(receiver.socketId).emit(event, payload);
+            const socketUser = await UserOnlineManager.getUserOnline(userId);
+            if (socketUser?.socketId) {
+                io.to(socketUser.socketId).emit(event, payload);
             }
         } catch (error) {
-            console.error(`❌ Error notifying receiver ${receiverId} for ${event}:`, error);
+            console.error(`❌ Error notifying user ${userId} for ${event}:`, error);
         }
     }
 }
