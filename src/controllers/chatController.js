@@ -3,38 +3,39 @@ const ChatRoom = require('../models/ChatRoom');
 const mongoose = require('mongoose');
 
 const getChatHistory = async (req, res) => {
-    const { senderId, receiverId, page = 1, limit = 50 } = req.query;
+    const {senderId, receiverId, page = 1, limit = 50} = req.query;
 
     if (!senderId || !receiverId) {
-        return res.status(200).json({ status: 'fail', message: 'Sender and Receiver IDs are required' });
+        return res.status(200).json({status: 'fail', message: 'Sender and Receiver IDs are required'});
     }
 
     try {
         // Find the chat room
-        const chatRoom = await ChatRoom.findOne({ users: { $all: [senderId, receiverId] } });
+        const chatRoom = await ChatRoom.findOne({users: {$all: [senderId, receiverId]}});
 
         if (!chatRoom) {
-            return res.status(200).json({ chatRoomId: null, chats: [] });
+            return res.status(200).json({chatRoomId: null, chats: []});
         }
 
         const chatRoomId = new mongoose.Types.ObjectId(chatRoom._id);
 
         // Get total message count for pagination metadata
-        const totalMessages = await Chat.countDocuments({ chatRoomId });
+        const totalDocuments = await Chat.countDocuments({chatRoomId});
 
         // Fetch chat history in descending order (latest messages first) and paginate
-        const chatDocuments = await Chat.find({ chatRoomId })
-            .sort({ date: -1 }) // Latest first
+        const chatDocuments = await Chat.find({chatRoomId})
+            .sort({date: -1}) // Latest first
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
 
         if (!chatDocuments.length) {
             return res.status(200).json({
+                status: "success",
                 chatRoomId,
                 createdAt: chatRoom.createdAt,
                 chats: [],
                 currentPage: parseInt(page),
-                totalMessages
+                totalDocuments
             });
         }
 
@@ -49,7 +50,7 @@ const getChatHistory = async (req, res) => {
             const messageDate = new Date(doc.date).toISOString().split("T")[0];
 
             if (messageDate !== lastDate) {
-                formattedChats.push({ type: "date", value: formatDate(doc.date) });
+                formattedChats.push({type: "date", value: formatDate(doc.date)});
                 lastDate = messageDate;
             }
 
@@ -66,16 +67,16 @@ const getChatHistory = async (req, res) => {
         });
 
         return res.status(200).json({
-            status: 'success',
+            status: "success",
             chatRoomId,
             createdAt: chatRoom.createdAt,
             chats: formattedChats,
             currentPage: parseInt(page),
-            totalMessages
+            totalDocuments
         });
     } catch (error) {
         console.error('❌ Error fetching chat history:', error);
-        return res.status(500).json({ status: 'error', message: 'Server Error' });
+        return res.status(500).json({status: 'error', message: 'Server Error'});
     }
 };
 
