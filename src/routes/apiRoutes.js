@@ -15,5 +15,4 @@ router.post('/upload-file', fileUploadController.uploadFile);
 router.get('/sync-message-counts', adminController.syncMessageCountsHandler);
 
 
-
 module.exports = router;

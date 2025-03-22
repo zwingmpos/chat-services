@@ -18,7 +18,7 @@ const authenticateRequest = async (req, res, next) => {
 
         if (businessKey) {
             // 🔹 Third-Party Authentication (Validate Public Token from MongoDB)
-            const publicKeyRecord = await PublicKey.findOne({ businessKey });
+            const publicKeyRecord = await PublicKey.findOne({businessKey});
 
             if (!publicKeyRecord) {
                 return res.status(401).json({
@@ -35,7 +35,7 @@ const authenticateRequest = async (req, res, next) => {
             }
 
             // ✅ Third-party authentication successful
-            req.user = { businessKey };
+            req.user = {businessKey};
             return next();
         }
 
@@ -60,8 +60,8 @@ const authenticateRequest = async (req, res, next) => {
         });
     } catch (error) {
         console.error('Authentication Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({error: 'Internal Server Error'});
     }
 };
 
-module.exports = { authenticateRequest };
+module.exports = {authenticateRequest};

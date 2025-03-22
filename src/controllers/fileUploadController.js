@@ -7,7 +7,7 @@ const ChatRoom = require('../models/ChatRoom');
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+    fs.mkdirSync(uploadDir, {recursive: true});
 }
 
 // Helper function to format file size
@@ -41,11 +41,11 @@ const uploadFile = async (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
             console.error('❌ File upload error:', err);
-            return res.status(200).json({ status: 'error', message: 'File upload failed' });
+            return res.status(200).json({status: 'error', message: 'File upload failed'});
         }
 
         if (!req.file) {
-            return res.status(200).json({ status: 'fail', message: 'No file uploaded' });
+            return res.status(200).json({status: 'fail', message: 'No file uploaded'});
         }
 
         try {
@@ -67,9 +67,9 @@ const uploadFile = async (req, res) => {
             });
         } catch (error) {
             console.error('❌ Error processing file:', error);
-            return res.status(500).json({ status: 'error', message: 'Server error' });
+            return res.status(500).json({status: 'error', message: 'Server error'});
         }
     });
 };
 
-module.exports = { uploadFile };
+module.exports = {uploadFile};
