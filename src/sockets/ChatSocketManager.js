@@ -21,11 +21,11 @@ class ChatSocketManager {
             });
 
             socket.on('typing', ({senderId, receiverId}) => {
-                if (senderId && receiverId) MessageManager.notifyReceiver(receiverId, 'userTyping', {senderId});
+                if (senderId && receiverId) MessageManager.notifyUser(receiverId, 'userTyping', {senderId});
             });
 
             socket.on('stopTyping', ({senderId, receiverId}) => {
-                if (senderId && receiverId) MessageManager.notifyReceiver(receiverId, 'userStoppedTyping', {senderId});
+                if (senderId && receiverId) MessageManager.notifyUser(receiverId, 'userStoppedTyping', {senderId});
             });
 
             socket.on('sendMessage', async ({senderId, receiverId, message, attachment}) => {

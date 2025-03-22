@@ -38,9 +38,9 @@ class MessageManager {
 
             await ChatRoom.findByIdAndUpdate(chatRoom._id, {$inc: {totalMessages: 1}});
 
-            await MessageManager.notifyReceiver(senderId, 'messageDelivered', chatMessage);
-            await MessageManager.notifyReceiver(receiverId, 'userStoppedTyping', {senderId});
-            await MessageManager.notifyReceiver(receiverId, 'receiveMessage', chatMessage);
+            await MessageManager.notifyUser(senderId, 'messageDelivered', chatMessage);
+            await MessageManager.notifyUser(receiverId, 'userStoppedTyping', {senderId});
+            await MessageManager.notifyUser(receiverId, 'receiveMessage', chatMessage);
 
             console.log(`📩 Message Sent from ${senderId} to ${receiverId}:`, message);
         } catch (error) {
@@ -48,7 +48,7 @@ class MessageManager {
         }
     }
 
-    static async notifyReceiver(userId, event, payload) {
+    static async notifyUser(userId, event, payload) {
         try {
             const socketUser = await UserOnlineManager.getUserOnline(userId);
             if (socketUser?.socketId) {
