@@ -94,6 +94,8 @@ const setupChatSocket = (io) => {
                 chatDocument.messages.push(chatMessage);
                 await chatDocument.save();
 
+                await ChatRoom.findByIdAndUpdate(chatRoom._id, {$inc: {totalMessages: 1}});
+
                 await notifyReceiver(receiverId, 'userStoppedTyping', {senderId});
                 await notifyReceiver(receiverId, 'receiveMessage', chatMessage);
 
