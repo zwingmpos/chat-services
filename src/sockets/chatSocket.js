@@ -10,7 +10,7 @@ const setupChatSocket = (io) => {
             return socket.disconnect();
         }
 
-        console.log(`🔵 User connected: ${userId} - ${socket.id}`);
+        console.log(`🟢 User connected: ${userId} - ${socket.id}`);
 
         try {
             const existingUser = await UserOnline.findOne({userId});
