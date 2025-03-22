@@ -4,7 +4,7 @@
   "description": "Chat microservice for Zwing",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "TZ='Asia/Kolkata' node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
