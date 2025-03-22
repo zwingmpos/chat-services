@@ -3,7 +3,7 @@ const ChatRoom = require('../models/ChatRoom');
 const mongoose = require('mongoose');
 
 const getChatHistory = async (req, res) => {
-    const {senderId, receiverId, page = 1, limit = 50} = req.query;
+    const {senderId, receiverId, page = 1, limit = 1} = req.query;
 
     if (!senderId || !receiverId) {
         return res.status(200).json({status: 'fail', message: 'Sender and Receiver IDs are required'});
