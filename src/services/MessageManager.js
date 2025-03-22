@@ -38,9 +38,9 @@ class MessageManager {
 
             await ChatRoom.findByIdAndUpdate(chatRoom._id, {$inc: {totalMessages: 1}});
 
+            await MessageManager.notifyReceiver(senderId, 'messageDelivered', chatMessage);
             await MessageManager.notifyReceiver(receiverId, 'userStoppedTyping', {senderId});
             await MessageManager.notifyReceiver(receiverId, 'receiveMessage', chatMessage);
-            await MessageManager.notifyReceiver(senderId, 'messageDelivered', chatMessage);
 
             console.log(`📩 Message Sent from ${senderId} to ${receiverId}:`, message);
         } catch (error) {
