@@ -64,46 +64,81 @@ const getChatHistory = async (req, res) => {
 };
 
 const storeOfflineMessage = async (req, res) => {
-    const {senderId, receiverId, message} = req.body;
+    const {senderId, receiverId, message, attachment} = req.body;
 
-    if (!senderId || !receiverId || !message) {
-        return res.status(200).json({status: 'fail', message: 'All fields are required'});
+    if (!senderId || !receiverId) {
+        return res.status(200).json({
+            status: 'fail',
+            message: 'senderId and receiverId are required.',
+        });
+    }
+
+    if (!text && !attachment) {
+        return res.status(200).json({
+            status: 'fail',
+            message: 'Either text or attachment is required.',
+        });
     }
 
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
     try {
-        // Find or Create ChatRoom
+        // 🆕 Find or Create ChatRoom
         let chatRoom = await ChatRoom.findOne({users: {$all: [senderId, receiverId]}});
 
         if (!chatRoom) {
             console.log(`🆕 Creating new chat room`);
             chatRoom = new ChatRoom({
                 users: [senderId, receiverId],
-                createdAt: new Date()
+                createdAt: new Date(),
             });
             await chatRoom.save();
         }
 
-        // Ensure chatRoomId is correctly assigned
-        const chatRoomId = chatRoom._id; // Correct way to get chat room ID
+        // ✅ Ensure chatRoomId is correctly assigned
+        const chatRoomId = chatRoom._id;
 
-        // Store message in Chat collection
+        // 🗂️ Find or Create Chat Document for Today
         let chatDocument = await Chat.findOne({chatRoomId, date});
 
         if (!chatDocument || chatDocument.messages.length >= 500) {
             chatDocument = new Chat({chatRoomId, date, messages: []});
         }
 
-        const newMessage = {senderId, receiverId, text: message, timestamp: new Date()};
+        const attachmentObj = attachment
+            ? {
+                url: attachment.url,
+                name: attachment.name,
+                size: attachment.size,
+                type: attachment.type,
+                uploadedAt: attachment.uploadedAt || new Date(),
+            }
+            : null;
+
+        // Create chat message
+        const newMessage = {
+            senderId,
+            receiverId,
+            text: message || null,
+            attachment: attachmentObj,
+            timestamp: new Date(),
+        };
+
+        // 🗳️ Add new message and save
         chatDocument.messages.push(newMessage);
         await chatDocument.save();
 
-        return res.status(200).json({status: 'success', message: 'Message stored for offline user'});
-
+        return res.status(200).json({
+            status: 'success',
+            message: 'Message stored for offline user',
+            data: newMessage,
+        });
     } catch (error) {
         console.error('❌ Error storing offline message:', error);
-        return res.status(500).json({status: 'error', message: 'Server Error'});
+        return res.status(500).json({
+            status: 'error',
+            message: '❌ Internal Server Error',
+        });
     }
 };
 
@@ -149,9 +184,12 @@ const formatDate = (dateString) => {
     });
 };
 
-// Format time to "12:45"
 const formatTime = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString("en-GB", {hour: "2-digit", minute: "2-digit", hour12: false});
+    return new Date(timestamp).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+    }).replace(" AM", " am").replace(" PM", " pm");
 };
 
 // ✅ Correct Export

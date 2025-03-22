@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const dotenv = require('dotenv');
@@ -19,6 +20,7 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use('/api/chat', apiRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 
 // Setup WebSocket
 setupChatSocket(io);
