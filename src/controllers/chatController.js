@@ -3,40 +3,53 @@ const ChatRoom = require('../models/ChatRoom');
 const mongoose = require('mongoose');
 
 const getChatHistory = async (req, res) => {
-    const {senderId, receiverId} = req.query;
+    const { senderId, receiverId, page = 1, limit = 50 } = req.query;
 
     if (!senderId || !receiverId) {
-        return res.status(200).json({status: 'fail', message: 'Sender and Receiver IDs are required'});
+        return res.status(200).json({ status: 'fail', message: 'Sender and Receiver IDs are required' });
     }
 
     try {
-        // Find the chat room based on users
-        const chatRoom = await ChatRoom.findOne({users: {$all: [senderId, receiverId]}});
+        // Find the chat room
+        const chatRoom = await ChatRoom.findOne({ users: { $all: [senderId, receiverId] } });
 
-        if (!chatRoom || !chatRoom._id) {
-            return res.status(200).json({chatRoomId: null, chats: []});
+        if (!chatRoom) {
+            return res.status(200).json({ chatRoomId: null, chats: [] });
         }
 
-        // Convert `chatRoom._id` to ObjectId before querying
         const chatRoomId = new mongoose.Types.ObjectId(chatRoom._id);
 
-        // Fetch chat history with correct ObjectId format
-        const chatDocuments = await Chat.find({chatRoomId}).sort({date: 1}).limit(50);
+        // Get total message count for pagination metadata
+        const totalMessages = await Chat.countDocuments({ chatRoomId });
 
+        // Fetch chat history in descending order (latest messages first) and paginate
+        const chatDocuments = await Chat.find({ chatRoomId })
+            .sort({ date: -1 }) // Latest first
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
 
         if (!chatDocuments.length) {
-            return res.status(200).json({chatRoomId, createdAt: chatRoom.createdAt, chats: []});
+            return res.status(200).json({
+                chatRoomId,
+                createdAt: chatRoom.createdAt,
+                chats: [],
+                currentPage: parseInt(page),
+                totalMessages
+            });
         }
+
+        // Reverse the order of messages for proper chronological display
+        const reversedChatDocuments = chatDocuments.reverse();
 
         // Format the response
         let formattedChats = [];
         let lastDate = null;
 
-        chatDocuments.forEach(doc => {
+        reversedChatDocuments.forEach(doc => {
             const messageDate = new Date(doc.date).toISOString().split("T")[0];
 
             if (messageDate !== lastDate) {
-                formattedChats.push({type: "date", value: formatDate(doc.date)});
+                formattedChats.push({ type: "date", value: formatDate(doc.date) });
                 lastDate = messageDate;
             }
 
@@ -44,8 +57,9 @@ const getChatHistory = async (req, res) => {
                 formattedChats.push({
                     type: msg.senderId === senderId ? "sender" : "receiver",
                     message: msg.text,
-                    messageType: "text",
+                    messageType: msg.attachment ? "attachment" : "text",
                     messageId: msg._id,
+                    attachment: msg.attachment || null,
                     time: formatTime(msg.timestamp),
                 });
             });
@@ -55,11 +69,13 @@ const getChatHistory = async (req, res) => {
             status: 'success',
             chatRoomId,
             createdAt: chatRoom.createdAt,
-            chats: formattedChats
+            chats: formattedChats,
+            currentPage: parseInt(page),
+            totalMessages
         });
     } catch (error) {
         console.error('❌ Error fetching chat history:', error);
-        return res.status(500).json({status: 'error', message: 'Server Error'});
+        return res.status(500).json({ status: 'error', message: 'Server Error' });
     }
 };
 
