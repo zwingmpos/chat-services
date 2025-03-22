@@ -26,18 +26,24 @@ const setupChatSocket = (io) => {
             console.error("❌ Error updating user online status:", error);
         }
 
-        const joinChatRoom = async (senderId, receiverId) => {
+        // Ensure the chat room is unique to the pair of users (private room)
+        const joinPrivateRoom = async (senderId, receiverId) => {
             try {
+                // Check if chat room exists for this unique pair of users
                 let chatRoom = await ChatRoom.findOne({users: {$all: [senderId, receiverId]}});
+
+                // If no room exists, create a new one
                 if (!chatRoom) {
-                    console.log("🆕 Creating new chat room");
+                    console.log("🆕 Creating new private chat room for users");
                     chatRoom = await new ChatRoom({users: [senderId, receiverId]}).save();
                 }
+
+                // Join the room using the unique room ID
                 socket.join(chatRoom._id.toString());
-                console.log(`✅ User ${senderId} joined room: ${chatRoom._id}`);
+                console.log(`✅ User ${senderId} joined private room: ${chatRoom._id}`);
                 return chatRoom;
             } catch (error) {
-                console.error("❌ Error joining room:", error);
+                console.error("❌ Error joining private room:", error);
             }
         };
 
@@ -51,7 +57,7 @@ const setupChatSocket = (io) => {
         };
 
         socket.on('joinRoom', async ({senderId, receiverId}) => {
-            if (senderId && receiverId) await joinChatRoom(senderId, receiverId);
+            if (senderId && receiverId) await joinPrivateRoom(senderId, receiverId);
         });
 
         socket.on('typing', ({senderId, receiverId}) => {
@@ -66,7 +72,7 @@ const setupChatSocket = (io) => {
             if (!senderId || !receiverId || (!message?.trim() && !attachment)) return;
 
             try {
-                const chatRoom = await joinChatRoom(senderId, receiverId);
+                const chatRoom = await joinPrivateRoom(senderId, receiverId);
                 const date = new Date().toISOString().split('T')[0];
 
                 const attachmentObj = attachment ? {
