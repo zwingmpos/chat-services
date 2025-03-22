@@ -108,8 +108,45 @@ const storeOfflineMessage = async (req, res) => {
 };
 
 // Format date to "18 March 2025"
-const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric"});
+const formatDate = (dateString) => {
+    // return new Date(dateString).toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric"});
+
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    const messageDate = new Date(dateString);
+    const today = new Date();
+
+    // Normalize times to 00:00:00 to compare only dates
+    today.setHours(0, 0, 0, 0);
+    messageDate.setHours(0, 0, 0, 0);
+
+    const timeDifference = today - messageDate;
+    const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+    // Case 1: Today
+    if (dayDifference === 0) {
+        return 'Today';
+    }
+
+    // Case 2: Yesterday
+    if (dayDifference === 1) {
+        return 'Yesterday';
+    }
+
+    // Case 3: Same week but not today or yesterday
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // Sunday of the current week
+
+    if (messageDate >= weekStart) {
+        return daysOfWeek[messageDate.getDay()];
+    }
+
+    // Case 4: Older than the current week
+    return messageDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    });
 };
 
 // Format time to "12:45"
